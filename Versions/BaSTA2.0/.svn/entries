@@ -1,0 +1,74 @@
+10
+
+dir
+754
+svn+ssh://fercolchero@svn.r-forge.r-project.org/svnroot/basta/Branches/BaSTA2.0
+svn+ssh://fercolchero@svn.r-forge.r-project.org/svnroot/basta
+
+
+
+2012-02-22T09:30:26.725458Z
+518
+fercolchero
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+edb9625f-4e0d-4859-8d74-9fd3b1da38cb
+
+DESCRIPTION
+file
+
+
+
+
+2011-11-01T13:09:16.000000Z
+cb9826d1412ed4e5615d60e3373ca8ca
+2011-10-27T21:24:19.358963Z
+413
+fercolchero
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+617
+
+R
+dir
+
+data
+dir
+
+inst
+dir
+
+man
+dir
+
