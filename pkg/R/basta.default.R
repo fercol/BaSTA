@@ -58,17 +58,17 @@ basta.default <- function(object, studyStart, studyEnd, minAge = 0,
       if (requireNamespace("snowfall", quietly = TRUE)) {
         opp <- options()
         options(warn = -1)
-        #require(snowfall)
-        snowfall::sfInit(parallel = TRUE, cpus = ncpus)
-        snowfall::sfExport(list = c(bastaIntVars, ".Random.seed"))
-        snowfall::sfLibrary("BaSTA", character.only = TRUE, warn.conflicts = FALSE)
-        #sfLibrary(msm, warn.conflicts = FALSE)
-        #sfSource("/Users/fernando/FERNANDO/PROJECTS/4.PACKAGES/BaSTA/workspace/developBasta/code/loadBaSTA.R")
+        require(snowfall)
+				setDefaultClusterOptions <- snow::setDefaultClusterOptions
+				snowfall::sfInit(parallel = TRUE, cpus = ncpus)
+				snowfall::sfExport(list = c(bastaIntVars, ".Random.seed"))
+				snowfall::sfLibrary("BaSTA", character.only = TRUE, 
+						warn.conflicts = FALSE)
         bastaOut <- snowfall::sfClusterApplyLB(1:nsim, .RunBastaMCMC, algObj,
                                                defTheta, 
             CalcMort, CalcSurv, dataObj, covObj, userPars, fullParObj, 
             agesIni, parsIni, priorAgeObj, parsCovIni, postIni, jumps)
-        snowfall::sfRemoveAll(hidden = TRUE)
+				snowfall::sfRemoveAll(hidden = TRUE)
         snowfall::sfStop()
         options(opp)
       } else {
@@ -96,7 +96,8 @@ basta.default <- function(object, studyStart, studyEnd, minAge = 0,
   cat(sprintf("Total MCMC computing time: %.2f %s.\n\n", compTime, 
           units(End - Start)))
   bastaResults <- .CalcDiagnost(bastaOut, algObj, covObj, defTheta, 
-      fullParObj, dataObj)
+      fullParObj, dataObj, parsIni, parsCovIni, agesIni, postIni, CalcSurv, 
+			priorAgeObj)
   bastaResults$settings <- c(niter, burnin, thinning, nsim)
   names(bastaResults$settings) <- c("niter", "burnin", "thinning", "nsim")
   bastaResults$modelSpecs <- 
