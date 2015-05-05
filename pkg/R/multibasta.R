@@ -10,8 +10,8 @@ multibasta <- function(object, studyStart, studyEnd, models,
   modsAbr <- rbind(data.frame(model = "Ex", shape = "Si"),
                    expand.grid(model = c("Go", "We", "Lo"), 
                                shape = c("Si", "Ma", "Bt")))
-  if (length(models) == 0) models <- c("EX", "GO", "WE", "LO")
-  if (length(shapes) == 0) shapes <- c("simple", "Makeham", "bathtub")
+  if (missing(models)) models <- c("EX", "GO", "WE", "LO")
+  if (missing(shapes)) shapes <- c("simple", "Makeham", "bathtub")
   idIncl <- which(mods$model %in% models & mods$shape %in% shapes)
   mods <- mods[idIncl, ]
   modsAbr <- modsAbr[idIncl, ]
