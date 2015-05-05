@@ -1282,6 +1282,13 @@ basta <-
 	outObj$post <- rep(0, niter)
 	outObj$post[1] <- sum(postNow$mat[, 'fx'] - postNow$mat[, 'Sx'] + 
 					postNow$mat[, 'px'] + postNow$mat[, 'vx'])
+	outObj$postFull <- matrix(0, niter, ncol(postNow$mat), 
+			dimnames = list(NULL, colnames(postNow$mat)))
+	outObj$postFull[1, ] <- apply(postNow$mat, 2, sum)
+	if (dataObj$updB | dataObj$updD) {
+		outObj$postXu <- rep(0, niter)
+		outObj$postXu[1] <- sum(postNow$mat[dataObj$idNoA, "postX"])
+	}
 	thinSeq <- seq(burnin, niter, thinning)
 	lenThin <- length(thinSeq)
 	if (class(dataObj) == "ageUpd") {
@@ -1374,6 +1381,10 @@ basta <-
 		}
 		outObj$post[m] <- sum(postNow$mat[, 'fx'] - postNow$mat[, 'Sx'] + 
 						postNow$mat[, 'px'] + postNow$mat[, "lx"])
+		outObj$postFull[m, ] <- apply(postNow$mat, 2, sum)
+		if (dataObj$updB | dataObj$updD) {
+			outObj$postXu[m] <- sum(postNow$mat[dataObj$idNoA, "postX"])
+		}
 	}
 	options(op)
 	return(outObj)
@@ -1526,12 +1537,14 @@ basta <-
 	parMat <- bastaOut[[1]]$par[thinned, ]
 	fullParMat <- bastaOut[[1]]$par[algObj$burnin:algObj$niter, ]
 	posterior <- bastaOut[[1]]$post[thinned]
+	if (algObj$minAge > 0) lams <- bastaOut[[1]]$lambda[thinned]
 	if (algObj$nsim > 1) {
 		for (ii in 2:algObj$nsim) {
 			parMat <- rbind(parMat, bastaOut[[ii]]$par[thinned, ])
 			fullParMat <- rbind(fullParMat, 
 					bastaOut[[ii]]$par[algObj$burnin:algObj$niter, ])
 			posterior <- c(posterior, bastaOut[[ii]]$post[thinned])
+			if (algObj$minAge > 0) lams <- c(lams, bastaOut[[ii]]$lambda[thinned])
 		}
 	}
 	coef <- cbind(apply(parMat, 2, mean, na.rm=TRUE), apply(parMat, 2, 
@@ -1569,10 +1582,11 @@ basta <-
 			parsMode <- parsIni
 			parsMode$theta[1:fullParObj$theta$len] <- 
 					coef[1:fullParObj$theta$len, 1]
-			if (class(parsIni)[1] == "thegam") {
+			if (class(parsIni)[1] == "theGam") {
 				idGam <- which(substr(fullParObj$allNames, 1, 2) == "ga")
 				parsMode$gamma <- coef[idGam, 1]
 			}
+			if (algObj$minAge > 0) parsMode$lambda <- mean(lams)
 			idPi <- which(substr(fullParObj$allNames, 1, 2) == "pi")
 			parsMode$pi <- coef[idPi, 1]
 			parsCovMode <- .CalcParCovObj(covObj, parsMode, parsCovIni)
@@ -1601,12 +1615,11 @@ basta <-
 			}
 			agesMode$ages[, "birth"] <- bimean
 			agesMode$ages[, "death"] <- dimean
-			
+			agesMode$ages[, "age"] <- agesMode$ages[, "death"] - 
+					agesMode$ages[, "birth"]
 			if (algObj$minAge > 0) {
 				agesMode$ages <- .SplitByMinAge(agesMode$ages, algObj)
 			} else {
-				agesMode$ages[, "age"] <- agesMode$ages[, "death"] - 
-						agesMode$ages[, "birth"]
 				idtr <- which(agesMode$ages[, "birth"] < algObj$start)
 				agesMode$ages[idtr, "ageTr"] <- 
 						algObj$start - agesMode$ages[idtr, "birth"]
