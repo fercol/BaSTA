@@ -55,31 +55,20 @@ basta.default <- function(object, studyStart, studyEnd, minAge = 0,
   if (nsim > 1) {
     cat("Multiple simulations started...\n\n") 
     if (parallel) {
-      if (requireNamespace("snowfall", quietly = TRUE)) {
-        opp <- options()
-        options(warn = -1)
-        require(snowfall)
-				setDefaultClusterOptions <- snow::setDefaultClusterOptions
-				snowfall::sfInit(parallel = TRUE, cpus = ncpus)
-				snowfall::sfExport(list = c(bastaIntVars, ".Random.seed"))
-				snowfall::sfLibrary("BaSTA", character.only = TRUE, 
-						warn.conflicts = FALSE)
-        bastaOut <- snowfall::sfClusterApplyLB(1:nsim, .RunBastaMCMC, algObj,
-                                               defTheta, 
-            CalcMort, CalcSurv, dataObj, covObj, userPars, fullParObj, 
-            agesIni, parsIni, priorAgeObj, parsCovIni, postIni, jumps)
-				snowfall::sfRemoveAll(hidden = TRUE)
-        snowfall::sfStop()
-        options(opp)
-      } else {
-        warning("\nPackage 'snowfall' is not installed.\nSimulations ",
-            "will not be ran in parallel (computing time will ",
-            "be longer...)\n")
-        bastaOut <- lapply(1:nsim, .RunBastaMCMC, algObj, defTheta, 
-            CalcMort, CalcSurv, dataObj, covObj, userPars, fullParObj, 
-            agesIni, parsIni, priorAgeObj, parsCovIni, postIni, jumps)
-      }
-    } else {
+			opp <- options()
+			options(warn = -1)
+			sfInit(parallel = TRUE, cpus = ncpus)
+			sfExport(list = c(bastaIntVars, ".Random.seed"))
+			sfLibrary("BaSTA", character.only = TRUE, 
+					warn.conflicts = FALSE)
+			bastaOut <- sfClusterApplyLB(1:nsim, .RunBastaMCMC, algObj,
+					defTheta, CalcMort, CalcSurv, dataObj, covObj, userPars, 
+					fullParObj, agesIni, parsIni, priorAgeObj, parsCovIni, postIni, 
+					jumps)
+			sfRemoveAll(hidden = TRUE)
+			sfStop()
+			options(opp)
+		} else {
       bastaOut <- lapply(1:nsim, .RunBastaMCMC, algObj, defTheta, 
           CalcMort, CalcSurv, dataObj, covObj, userPars, fullParObj, 
           agesIni, parsIni, priorAgeObj, parsCovIni, postIni, jumps)
