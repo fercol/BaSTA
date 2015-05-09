@@ -3,6 +3,9 @@ export("basta", "basta.default", "print.basta", "summary.basta",
        "DataCheck", "MakeCovMat", "MakeLifeTable", "CensusToCaptHist",
        "multibasta", "summary.multibasta", "print.multibasta")
 
+# Import package snowfall
+import(snowfall)
+
 # S3 methods for exported functions:
 S3method("print", "basta")
 S3method("summary", "basta")

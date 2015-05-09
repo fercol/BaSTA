@@ -5,8 +5,7 @@ Version: 1.9.4
 Date: 2015-03-15
 Author: Fernando Colchero, Owen Jones, Maren Rebke
 Maintainer: Fernando Colchero <colchero@imada.sdu.dk>
-Depends: R (>= 2.10)
-Suggests: snowfall
+Depends: R (>= 2.10), snowfall
 Description: This package estimates survival and mortality with covariates from capture-recapture/recovery data in a Bayesian framework when many individuals are of unknown age. It includes tools for data checking, model diagnostics and outputs such as life-tables and plots.
 License: GPL
 LazyLoad: yes
