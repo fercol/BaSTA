@@ -4,7 +4,14 @@ export("basta", "basta.default", "print.basta", "summary.basta",
        "multibasta", "summary.multibasta", "print.multibasta")
 
 # Import package snowfall
-import(snowfall)
+ import(snowfall)
+  importFrom("grDevices", "adjustcolor", "rainbow")
+  importFrom("graphics", "axis", "layout", "legend", "lines", "mtext",
+             "par", "plot", "polygon")
+  importFrom("stats", "as.formula", "cor", "density", "dnorm",
+             "model.matrix", "pnorm", "qnorm", "quantile", "rbeta",
+             "rnorm", "runif", "sd", "terms", "var")
+  importFrom("utils", "packageDescription")
 
 # S3 methods for exported functions:
 S3method("print", "basta")
@@ -12,7 +19,7 @@ S3method("summary", "basta")
 S3method("plot", "basta")
 S3method("print", "multibasta")
 S3method("summary", "multibasta")
-
+S3method("basta", "default")
 
 # S3 methods for hidden functions:
 S3method(".CalcLike", "minAge")

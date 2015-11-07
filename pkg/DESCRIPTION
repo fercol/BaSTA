@@ -1,11 +1,12 @@
 Package: BaSTA
 Type: Package
-Title: A package for estimating age-specific survival from incomplete capture-recapture/recovery data
+Title: A Package for Estimating Age-Specific Survival from Incomplete Capture-Recapture/Recovery Data
 Version: 1.9.4
-Date: 2015-03-15
+Date: 2015-11-07
 Author: Fernando Colchero, Owen Jones, Maren Rebke
 Maintainer: Fernando Colchero <colchero@imada.sdu.dk>
-Depends: R (>= 2.10), snowfall
+Depends: R (>= 2.10)
+Imports: snowfall
 Description: This package estimates survival and mortality with covariates from capture-recapture/recovery data in a Bayesian framework when many individuals are of unknown age. It includes tools for data checking, model diagnostics and outputs such as life-tables and plots.
 License: GPL
 LazyLoad: yes
