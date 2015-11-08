@@ -1,6 +1,6 @@
 # FILE NAME:   basta.default
 # AUTHOR:      Fernando Colchero
-# DATE:        01/May/2015
+# DATE:        07/Nov/2015
 # VERSION:     1.9.4
 # DESCRIPTION: This function estimates age-specific mortality from capture-
 #              recapture/recovery (CRR) data when a large proportion of (or all) 
