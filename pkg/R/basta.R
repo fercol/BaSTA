@@ -1604,9 +1604,8 @@ basta <-
 		  agesMode <- agesIni
 			if (dataObj$updB | dataObj$updD) {
 				cat("\nCalculating DIC...")
-				nbd <- nrow(bastaOut[[1]]$birth)
-				DmodeVec <- rep(0, nbd)
-				for (dm in 1:nbd) {
+				DmodeVec <- rep(0, nthin)
+				for (dm in 1:nthin) {
 					DmodeMean <- 0
 					for (si in 1:algObj$nsim) {
 						bi <- dataObj$bi
