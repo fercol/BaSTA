@@ -48,10 +48,13 @@ CensusToCaptHist <-
   mat <- as.matrix(table(ID, int))
   mat[mat > 0] <- 1
   ID <- rownames(mat)
-  mat <- as.data.frame(cbind(as.factor(ID), as.matrix(mat)))
-  colnames(mat) = c("ID", colnames(mat)[-1])
-  
+  mat <- as.data.frame(cbind(ID=as.character(ID), as.matrix(mat)))
+
   # Remove the dummy row
   mat <- mat[-which(rownames(mat) == "XdummyX"), ]
+
+  # Remove rownames (since they already in ID vector)
+  rownames(mat)<-NULL
+
   return(mat)
 }
