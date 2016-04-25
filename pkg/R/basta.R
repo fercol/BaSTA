@@ -1798,7 +1798,10 @@ basta <-
 					ncol = defTheta$length)
 		} else if (class(covObj)[1] == "fused") {
 			idTh <- grep(cov, fullParObj$allNames, fixed = TRUE)
-			idTh <- idTh[-grep("gamma", fullParObj$allNames[idTh])]
+			cvInGam <- grep("gamma", fullParObj$allNames[idTh])
+			if (length(cvInGam) > 0) {
+				idTh <- idTh[-cvInGam]
+			}
 			thPars <- matrix(bastaResults$params[, idTh], 
 					ncol = length(idTh))
 		} else {

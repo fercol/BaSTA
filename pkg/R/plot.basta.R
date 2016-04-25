@@ -102,10 +102,12 @@ plot.basta <-
         }
         dez[[catNames[j]]] <- density(thetaMat[, idth])
         ylz[j] <- max(dez[[catNames[j]]]$y)
-        xlz[j,] <- range(dez[[j]]$x)
+        #xlz[j,] <- range(dez[[j]]$x)
+				xlz[j, ] <- quantile(thetaMat[, idth], c(0.01, 0.99))
       }
       xr <- range(xlz)
-      xl <- c(floor(max(c(lows[i], xr[1])) * 10) / 10, ceiling(xr[2] * 10) / 10)
+			xl <- c(floor(max(c(lows[idAllTheta[i]], xr[1])) * 10) / 10, 
+					ceiling(xr[2] * 10) / 10)
       xd <- ceiling(diff(xl) * 10) / 10
       plot(x = dez[[1]], xlab = "", ylab = "", xlim = xl, ylim = c(0, max(ylz)), 
           lwd = 3, axes = FALSE, main = "", col = NA)
@@ -146,7 +148,7 @@ plot.basta <-
     
     # Plot mortality rates:
     #ylmx <- c(0, max(c(0.5, round(max(unlist(x$mortQuant))))))
-    ylmx <- c(0, max(c(0.5, ceiling(max(unlist(x$mortQuant)/ 10) * 10)) ))
+    ylmx <- c(0, max(c(0.5, ceiling(max(unlist(x$mortQuant)/ 10) * 10))))
     plot(x = c(0, mxv), y = ylmx, col = NA, ylim = ylmx, xlab = "", ylab = "",
         axes = FALSE)
     for(i in 1:lenCat){

@@ -2,7 +2,7 @@ Package: BaSTA
 Type: Package
 Title: Age-Specific Survival Analysis from Incomplete Capture-Recapture/Recovery Data
 Version: 1.9.5
-Date: 2015-12-08
+Date: 2016-01-16
 Author: Fernando Colchero, Owen Jones, Maren Rebke
 Maintainer: Fernando Colchero <colchero@imada.sdu.dk>
 Depends: R (>= 2.10)
