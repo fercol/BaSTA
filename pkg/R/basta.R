@@ -1,7 +1,7 @@
 # FILE NAME:   basta.R
 # AUTHOR:      Fernando Colchero
 # DATE:        01/May/2015
-# VERSION:     1.9.4
+# VERSION:     1.9.5
 # DESCRIPTION: basta method and ancilliary functions.
 # COMMENTS:    
 # ============================================================================ #
@@ -143,7 +143,6 @@ basta <-
 	dataObj$Dx <- 1 #(study.years[2] - study.years[1])
 	return(dataObj)
 }
-
 
 .PrepAgeObj <- function(dataObj, algObj) {
 	ageObj <- list()
@@ -1009,7 +1008,6 @@ basta <-
 }
 
 
-
 # Calculate likelihood:
 .CalcLike <- function(ageObj, ...) UseMethod(".CalcLike")
 
@@ -1537,6 +1535,8 @@ basta <-
 	parMat <- bastaOut[[1]]$par[thinned, ]
 	fullParMat <- bastaOut[[1]]$par[algObj$burnin:algObj$niter, ]
 	posterior <- bastaOut[[1]]$post[thinned]
+	likelihood <- 
+			apply(bastaOut[[1]]$postFull[thinned, c("fx", "Sx", "lx", "px")], 1, sum) 
 	if (dataObj$updB | dataObj$updD) {
 		posterior <- posterior + bastaOut[[1]]$postXu[thinned]
 	}
@@ -1551,6 +1551,9 @@ basta <-
 				postii <- postii + bastaOut[[ii]]$postXu[thinned]
 			}
 			posterior <- c(posterior, postii)
+			likelihood <- c(likelihood, 
+					apply(bastaOut[[ii]]$postFull[thinned, c("fx", "Sx", "lx", "px")], 
+							1, sum))
 			if (algObj$minAge > 0) lams <- c(lams, bastaOut[[ii]]$lambda[thinned])
 		}
 	}
@@ -1602,68 +1605,76 @@ basta <-
 			
       # Calculate Dmode, -2 E_{Z}[log f(y, Z | E_{theta}[theta | y, Z]) | y]:
 		  agesMode <- agesIni
-			if (dataObj$updB | dataObj$updD) {
-				cat("\nCalculating DIC...")
-				DmodeVec <- rep(0, nthin)
-				for (dm in 1:nthin) {
-					DmodeMean <- 0
-					for (si in 1:algObj$nsim) {
-						bi <- dataObj$bi
-						di <- dataObj$di
-						if (dataObj$updB) {
-							bi[dataObj$idNoB] <- bastaOut[[si]]$birth[dm, ]
-						} 
-						if (dataObj$updD)	{
-							di[dataObj$idNoD] <- bastaOut[[si]]$death[dm, ]
-						}
-						agesMode$ages[, "birth"] <- bi
-						agesMode$ages[, "death"] <- di
-						agesMode$ages[, "age"] <- agesMode$ages[, "death"] - 
-								agesMode$ages[, "birth"]
-						if (algObj$minAge > 0) {
-							agesMode$ages <- .SplitByMinAge(agesMode$ages, algObj)
-						} else {
-							idtr <- which(agesMode$ages[, "birth"] < algObj$start)
-							agesMode$ages[idtr, "ageTr"] <- 
-									algObj$start - agesMode$ages[idtr, "birth"]
-						}
-						firstAlive <- c(apply(cbind(algObj$start, 
-												agesMode$ages[, "birth"] + 1), 1, max))
-						lastAlive <- c(apply(cbind(algObj$end, 
-												agesMode$ages[, "death"]), 1, min))
-						alive <- .BuildAliveMatrix(firstAlive, lastAlive, dataObj)
-						agesMode$alive <- alive
-						postMode <- .CalcPostX(agesMode, parsMode, postIni, parsCovMode, 
-								1:dataObj$n, CalcSurv, priorAgeObj, fullParObj, covObj, dataObj)
-						DmodeMean <- DmodeMean + sum(postMode$mat[, 'fx'] - 
-										postMode$mat[, 'Sx'] + postMode$mat[, 'px'] + 
-										postMode$mat[, "lx"])
-						if (dataObj$updB | dataObj$updD) {
-							DmodeMean <- DmodeMean + sum(postMode$mat[dataObj$idNoA, "postX"])
-						}
-					}
-					DmodeVec[dm] <- DmodeMean / algObj$nsim
-				}
-				Dmode <- -2 * mean(DmodeVec)
-				cat(" done\n")
+			runNew <- TRUE
+			if (runNew) {
+				Dave <- mean(- 2 * likelihood)
+				pD <- 1/2 * var(-2 * likelihood)
+				DIC <- pD + Dave
+				Dmode <- Dave - 2 * pD
 			} else {
-				agesMode <- agesIni
-				postMode <- .CalcPostX(agesMode, parsMode, postIni, parsCovMode, 
-						1:dataObj$n, CalcSurv, priorAgeObj, fullParObj, covObj, dataObj)
-				Dmode <- -2 * (sum(postMode$mat[, 'fx'] - postMode$mat[, 'Sx'] + 
-											postMode$mat[, 'px'] + postMode$mat[, "lx"]))
-			}
-			DIC <- 2 * Dave - Dmode
-			pD <- Dave - Dmode
-			runOld <- FALSE
-			if (runOld) {
-				L <- length(posterior)
-				Dm <- -2 * posterior
-				densD <- density(posterior)
-				Dave <- mean(Dm)
-				pD <- 1/2 * 1/(L-1) * sum((Dm - Dave)^2)
-				DIC <- Dave + pD
-				Dmode <- abs(2 * Dave - DIC)
+				if (dataObj$updB | dataObj$updD) {
+					cat("\nCalculating DIC...")
+					
+					for (dm in 1:nthin) {
+						DmodeMean <- 0
+						for (si in 1:algObj$nsim) {
+							bi <- dataObj$bi
+							di <- dataObj$di
+							if (dataObj$updB) {
+								bi[dataObj$idNoB] <- bastaOut[[si]]$birth[dm, ]
+							} 
+							if (dataObj$updD)	{
+								di[dataObj$idNoD] <- bastaOut[[si]]$death[dm, ]
+							}
+							agesMode$ages[, "birth"] <- bi
+							agesMode$ages[, "death"] <- di
+							agesMode$ages[, "age"] <- agesMode$ages[, "death"] - 
+									agesMode$ages[, "birth"]
+							if (algObj$minAge > 0) {
+								agesMode$ages <- .SplitByMinAge(agesMode$ages, algObj)
+							} else {
+								idtr <- which(agesMode$ages[, "birth"] < algObj$start)
+								agesMode$ages[idtr, "ageTr"] <- 
+										algObj$start - agesMode$ages[idtr, "birth"]
+							}
+							firstAlive <- c(apply(cbind(algObj$start, 
+													agesMode$ages[, "birth"] + 1), 1, max))
+							lastAlive <- c(apply(cbind(algObj$end, 
+													agesMode$ages[, "death"]), 1, min))
+							alive <- .BuildAliveMatrix(firstAlive, lastAlive, dataObj)
+							agesMode$alive <- alive
+							postMode <- .CalcPostX(agesMode, parsMode, postIni, parsCovMode, 
+									1:dataObj$n, CalcSurv, priorAgeObj, fullParObj, covObj, dataObj)
+							DmodeMean <- DmodeMean + sum(postMode$mat[, 'fx'] - 
+											postMode$mat[, 'Sx'] + postMode$mat[, 'px'] + 
+											postMode$mat[, "lx"])
+							if (dataObj$updB | dataObj$updD) {
+								DmodeMean <- DmodeMean + sum(postMode$mat[dataObj$idNoA, "postX"])
+							}
+						}
+						DmodeVec[dm] <- DmodeMean / algObj$nsim
+					}
+					Dmode <- -2 * mean(DmodeVec)
+					cat(" done\n")
+				} else {
+					agesMode <- agesIni
+					postMode <- .CalcPostX(agesMode, parsMode, postIni, parsCovMode, 
+							1:dataObj$n, CalcSurv, priorAgeObj, fullParObj, covObj, dataObj)
+					Dmode <- -2 * (sum(postMode$mat[, 'fx'] - postMode$mat[, 'Sx'] + 
+												postMode$mat[, 'px'] + postMode$mat[, "lx"]))
+				}
+				DIC <- 2 * Dave - Dmode
+				pD <- Dave - Dmode
+				runOld <- FALSE
+				if (runOld) {
+					L <- length(posterior)
+					Dm <- -2 * posterior
+					densD <- density(posterior)
+					Dave <- mean(Dm)
+					pD <- 1/2 * 1/(L-1) * sum((Dm - Dave)^2)
+					DIC <- Dave + pD
+					Dmode <- abs(2 * Dave - DIC)
+				}
 			}
 			k <- ncol(parMat)
 			modSel <- c(Dave, Dmode, pD, k, DIC)
@@ -1870,8 +1881,29 @@ basta <-
 	return(bastaResults)
 }
 
-.CalcLifeTable <- function(bastaResults, lifeTable, object, covObj, algObj) {
+.CalcLifeTable <- function(bastaOut, lifeTable, object, covObj, algObj) {
 	if (lifeTable) {
+		if (class(agesIni)[1] == "ageUpd") {
+			nthin <- ceiling((algObj$niter - algObj$burnin + 1) / algObj$thinning)
+			bMat <- matrix(dataObj$bi, dataObj$n, nthin * algObj$nsim)
+			if (dataObj$updB) {
+				for (sim in 1:algObj$nsim) {
+					bMat[dataObj$idNoB, 1:nthin + (sim - 1) * nthin] <- 
+							t(bastaOut[[sim]]$birth)
+					print(1:nthin + (sim - 1) * nthin)
+				}
+			}
+			dMat <- matrix(dataObj$di, dataObj$n, nthin * algObj$nsim)
+			if (dataObj$updD) {
+				for (sim in 1:algObj$nsim) {
+					dMat[dataObj$idNoD, 1:nthin + (sim - 1) * nthin] <- 
+							t(bastaOut[[sim]]$death)
+				}
+			}
+		} else {
+			bMat <- matrix(dataObj$bi, ncol = 1)
+			dMat <- matrix(dataObj$di, ncol = 1)
+		}
 		LT  <- list()
 		if (is.null(covObj$cat)) {
 			covNames <- c("noCov")
@@ -1880,14 +1912,37 @@ basta <-
 		}
 		for (cov in covNames) {
 			if (cov == "noCov") {
-				x <- bastaResults$agesQuant[1, 
-						bastaResults$birthQuant[1, ] >= algObj$start]
+				x <- dMat - bMat
 			} else {
-				x <- bastaResults$agesQuant[1, object[, cov] == 1 & 
-								bastaResults$birthQuant[1, ] >= algObj$start]
+				x <- (dMat - bMat)[covObj[[class(covObj)[1]]][, cov] == 1,]
 			}
-			tempLT <- MakeLifeTable(x, ax = 0.5, n = 1)
-			tempLT <- subset(tempLT, tempLT$StartAge >= algObj$minAge)
+			ages <- 0:max(dMat - bMat)
+			nx <- length(ages)
+			tempLT <- lapply(1:ncol(x), function(ii) {
+						MakeLifeTable(x[, ii], ax = 0.5, n = 1)
+					})
+			tempDx <- apply(x, 2, function(xx) {
+						dx <- ages * 0
+						names(dx) <- ages
+						ddx <- as.matrix(table(xx))
+						dx[rownames(ddx)] <- ddx
+						return(dx)
+					})
+			tempLx <- apply(tempDx, 2, function(dd) {
+						lx <- rev(cumsum(rev(dd)))
+						return(lx)
+					})
+			meanLx <- apply(tempLx, 1, mean)
+			meanDx <- apply(tempDx, 1, mean)
+			lx <- meanLx / meanLx[1]
+			dx <- meanDx / meanLx[1]
+			ax <- rep(0.5, length = length(ages))
+			Lx <- ((lx - dx) * nx) + ((ax*nx) * dx)
+			Tx <- rev(cumsum(rev(Lx)))
+			ex <- Tx/meanLx			
+			tempLT <- data.frame(Age = ages, lx = lx, qx = dx, ax = ax, Lx = Lx,
+					Tx = Tx, ex = ex)
+			tempLT <- subset(tempLT, tempLT$Age >= algObj$minAge)
 			rownames(tempLT) <- NULL
 			LT[[cov]] <- tempLT
 		}
