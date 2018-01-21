@@ -109,8 +109,8 @@ basta.default <- function(object, studyStart, studyEnd, minAge = 0,
     bastaResults$parsForPlot[[pp]] <- 
         bastaOut[[pp]]$par[seq(1, algObj$niter, algObj$thinning), ]
   }
-  bastaResults$lifeTable <- .CalcLifeTable(bastaResults, lifeTable, object,
-      covObj, algObj)
+  bastaResults$lifeTable <- .CalcLifeTable(bastaOut, lifeTable, object,
+      covObj, algObj, dataObj)
   bastaResults$version <- packageDescription("BaSTA")$Version
   # Define class for output object:
   class(bastaResults) <- "basta"
