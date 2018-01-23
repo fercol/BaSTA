@@ -1,5 +1,0 @@
-$ cat .gitignore
-# Exclude .DS_Store and .project
-.DS_Store
-.project
-.Rproj.user
