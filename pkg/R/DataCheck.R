@@ -167,7 +167,11 @@ function(object, studyStart, studyEnd, autofix = rep(0, 7), silent=TRUE) {
 					cat("These records have been removed from the Dataframe\n")					
 				}
 			}
+		} else {
+		  type7 <- 0
 		}
+	} else {
+	  type7 <- 0
 	}
 	n <- nrow(Y)   
 
