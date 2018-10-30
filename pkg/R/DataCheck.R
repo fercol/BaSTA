@@ -168,10 +168,10 @@ function(object, studyStart, studyEnd, autofix = rep(0, 7), silent=TRUE) {
 				}
 			}
 		} else {
-		  type7 <- 0
+		  type7 <- c()
 		}
 	} else {
-	  type7 <- 0
+	  type7 <- c()
 	}
 	n <- nrow(Y)   
 

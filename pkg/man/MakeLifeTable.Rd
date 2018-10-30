@@ -27,7 +27,7 @@ Start and end of the interval, where start of the interval is defined as \emph{x
 Preston, S.H., Heuveline, P. and Guillot, M. (2001) \emph{Demography: Measuring and modeling population processes.} Blackwell Publishers, Oxford, UK.
 }
 
-\author{Owen Jones \email{jones@mpg.demogr.de}}
+\author{Owen Jones \email{jones@biology.sdu.dk}}
 
 \seealso{
 \code{\link{basta}}
