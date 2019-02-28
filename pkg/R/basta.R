@@ -1808,16 +1808,20 @@ basta <-
 			thPars <- matrix(bastaResults$params[, defTheta$name], 
 					ncol = defTheta$length)
 		} else if (class(covObj)[1] == "fused") {
-			idTh <- grep(cov, fullParObj$allNames, fixed = TRUE)
+			#idTh <- grep(cov, fullParObj$allNames, fixed = TRUE)
+			idTh <- which(fullParObj$allNames %in% 
+			                sprintf("%s%s", defTheta$name, cov))
 			cvInGam <- grep("gamma", fullParObj$allNames[idTh])
-			if (length(cvInGam) > 0) {
-				idTh <- idTh[-cvInGam]
-			}
+			# if (length(cvInGam) > 0) {
+			# 	idTh <- idTh[-cvInGam]
+			# }
 			thPars <- matrix(bastaResults$params[, idTh], 
 					ncol = length(idTh))
 		} else {
 			if (class(covObj)[2] %in% c("cateCov", "bothCov")) {
-				idTh <- grep(cov, fullParObj$allNames, fixed = TRUE)
+				#idTh <- grep(cov, fullParObj$allNames, fixed = TRUE)
+				idTh <- which(fullParObj$allNames %in% 
+				                sprintf("%s%s", defTheta$name, cov))
 			} else {
 				idTh <- grep("Intercept", fullParObj$allNames, fixed = TRUE)
 			}
