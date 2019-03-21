@@ -1888,80 +1888,81 @@ basta <-
 .CalcLifeTable <- function(bastaOut, lifeTable, object, covObj, algObj, 
 		dataObj) {
 	if (lifeTable) {
-		if (class(dataObj)[1] == "ageUpd") {
-			nthin <- ceiling((algObj$niter - algObj$burnin + 1) / algObj$thinning)
-			bMat <- matrix(dataObj$bi, dataObj$n, nthin * algObj$nsim)
-			if (dataObj$updB) {
-				for (sim in 1:algObj$nsim) {
-					bMat[dataObj$idNoB, 1:nthin + (sim - 1) * nthin] <- 
-							t(bastaOut[[sim]]$birth)
-				}
-			}
-			dMat <- matrix(dataObj$di, dataObj$n, nthin * algObj$nsim)
-			if (dataObj$updD) {
-				for (sim in 1:algObj$nsim) {
-					dMat[dataObj$idNoD, 1:nthin + (sim - 1) * nthin] <- 
-							t(bastaOut[[sim]]$death)
-				}
-			}
-		} else {
-			bMat <- matrix(dataObj$bi, ncol = 1)
-			dMat <- matrix(dataObj$di, ncol = 1)
-		}
-		LT  <- list()
-		if (is.null(covObj$cat)) {
-			covNames <- c("noCov")
-		} else {
-			covNames <- names(covObj$cat)
-		}
-		for (cov in covNames) {
-			if (cov == "noCov") {
-				x <- dMat - bMat
-			} else {
-				if (class(covObj)[1] %in% c("fused", "inMort")) {
-					covcat <- "inMort"
-				} else {
-					covcat <- "propHaz"
-				}
-				x <- (dMat - bMat)[covObj[[covcat]][, cov] == 1,]
-			}
-			ages <- 0:max(dMat - bMat)
-			nx <- length(ages)
-			if (ncol(x) > 1) {
-				tempDx <- apply(x, 2, function(xx) {
-							dx <- ages * 0
-							names(dx) <- ages
-							ddx <- as.matrix(table(xx))
-							dx[rownames(ddx)] <- ddx
-							return(dx)
-						})
-				tempLx <- apply(tempDx, 2, function(dd) {
-							lx <- rev(cumsum(rev(dd)))
-							return(lx)
-						})
-				meanLx <- apply(tempLx, 1, mean)
-				meanDx <- apply(tempDx, 1, mean)
-			} else {
-				dx <- ages * 0
-				names(dx) <- ages
-				ddx <- as.matrix(table(xx))
-				dx[rownames(ddx)] <- ddx
-				meanDx <- dx
-				meanLx <- rev(cumsum(rev(meanDx)))
-			}
-			lx <- meanLx / meanLx[1]
-			dx <- meanDx / meanLx[1]
-			ax <- rep(0.5, length = length(ages))
-			Lx <- ((lx - dx) * nx) + ((ax*nx) * dx)
-			Tx <- rev(cumsum(rev(Lx)))
-			ex <- Tx/meanLx
-			ex[is.na(ex)] <- 0
-			tempLT <- data.frame(Age = ages, lx = lx, qx = dx, ax = ax, Lx = Lx,
-					Tx = Tx, ex = ex)
-			tempLT <- subset(tempLT, tempLT$Age >= algObj$minAge)
-			rownames(tempLT) <- NULL
-			LT[[cov]] <- tempLT
-		}
+	  if (class(dataObj)[1] == "ageUpd") {
+	    nthin <- ceiling((algObj$niter - algObj$burnin + 1) / algObj$thinning)
+	    bMat <- matrix(dataObj$bi, dataObj$n, nthin * algObj$nsim)
+	    if (dataObj$updB) {
+	      for (sim in 1:algObj$nsim) {
+	        bMat[dataObj$idNoB, 1:nthin + (sim - 1) * nthin] <- 
+	          t(bastaOut[[sim]]$birth)
+	      }
+	    }
+	    dMat <- matrix(dataObj$di, dataObj$n, nthin * algObj$nsim)
+	    if (dataObj$updD) {
+	      for (sim in 1:algObj$nsim) {
+	        dMat[dataObj$idNoD, 1:nthin + (sim - 1) * nthin] <- 
+	          t(bastaOut[[sim]]$death)
+	      }
+	    }
+	  } else {
+	    bMat <- matrix(dataObj$bi, ncol = 1)
+	    dMat <- matrix(dataObj$di, ncol = 1)
+	  }
+	  LT  <- list()
+	  if (is.null(covObj$cat)) {
+	    covNames <- c("noCov")
+	  } else {
+	    covNames <- names(covObj$cat)
+	  }
+	  for (cov in covNames) {
+	    if (cov == "noCov") {
+	      x <- dMat - bMat
+	    } else {
+	      if (class(covObj)[1] %in% c("fused", "inMort")) {
+	        covcat <- "inMort"
+	      } else {
+	        covcat <- "propHaz"
+	      }
+	      x <- (dMat - bMat)[covObj[[covcat]][, cov] == 1,]
+	    }
+	    ages <- 0:max(dMat - bMat)
+	    nx <- 1
+	    if (ncol(x) > 1) {
+	      tempDx <- apply(x, 2, function(xx) {
+	        dx <- ages * 0
+	        names(dx) <- ages
+	        ddx <- as.matrix(table(xx))
+	        dx[rownames(ddx)] <- ddx
+	        return(dx)
+	      })
+	      tempLx <- apply(tempDx, 2, function(dd) {
+	        lx <- rev(cumsum(rev(dd)))
+	        return(lx)
+	      })
+	      meanLx <- apply(tempLx, 1, mean)
+	      meanDx <- apply(tempDx, 1, mean)
+	    } else {
+	      dx <- ages * 0
+	      names(dx) <- ages
+	      ddx <- as.matrix(table(xx))
+	      dx[rownames(ddx)] <- ddx
+	      meanDx <- dx
+	      meanLx <- rev(cumsum(rev(meanDx)))
+	    }
+	    lx <- meanLx #/ meanLx[1]
+	    dx <- meanDx 
+	    qx <- dx / meanLx[1]
+	    ax <- rep(0.5, length = length(ages))
+	    Lx <- ((lx - dx) * nx) + ((ax * nx) * dx)
+	    Tx <- rev(cumsum(rev(Lx)))
+	    ex <- Tx/meanLx
+	    ex[is.na(ex)] <- 0
+	    tempLT <- data.frame(Age = ages, lx = lx, dx = dx, qx = dx / lx, mx = dx / Lx, 
+	                         ax = ax, Lx = Lx, Tx = Tx, ex = ex)
+	    tempLT <- subset(tempLT, tempLT$Age >= algObj$minAge)
+	    rownames(tempLT) <- NULL
+	    LT[[cov]] <- tempLT
+	  }
 	} else {
 		LT <- NULL
 	}
