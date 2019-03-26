@@ -1828,9 +1828,11 @@ basta <-
 			thPars <- matrix(bastaResults$params[, idTh], ncol = length(idTh))
 			if (!is.null(covObj$cont)) {
 				for (pp in names(covObj$cont)) {
-					idCon <- which(substr(fullParObj$allNames, 
-									nchar(fullParObj$allNames) - (nchar(pp)-1), 
-									nchar(fullParObj$allNames)) == pp)
+					# idCon <- which(substr(fullParObj$allNames, 
+					# 				nchar(fullParObj$allNames) - (nchar(pp)-1), 
+					# 				nchar(fullParObj$allNames)) == pp)
+					idCon <- which(fullParObj$allNames %in% 
+					                 sprintf("%s.%s", defTheta$name, pp))
 					thPars <- thPars + 
 							matrix(bastaResults$params[, idCon], ncol = length(idCon)) *
 							mean(covObj$inMort[, covObj$cont[pp]])
