@@ -96,7 +96,7 @@ basta.default <- function(object, studyStart, studyEnd, minAge = 0,
   names(bastaResults$modelSpecs) <- c("model", "shape", "Covar. structure", 
       "minAge", "Categorical", "Continuous")
   bastaResults <- .CalcQuants(bastaOut, bastaResults, defTheta, fullParObj, 
-      algObj, dataObj, CalcSurv, CalcMort, covObj, agesIni)
+      algObj, dataObj, CalcSurv, CalcMort, covObj, agesIni, argList)
   bastaResults$jumpPriors <- 
       cbind(c(jumps$theta, jumps$gamma), 
           c(fullParObj$theta$priorMean, fullParObj$gamma$priorMean), 
