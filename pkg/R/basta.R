@@ -1,15 +1,17 @@
+# ============================== CODE METADATA =================================
 # FILE NAME:   basta.R
 # AUTHOR:      Fernando Colchero
 # DATE:        01/May/2015
 # VERSION:     1.9.5
 # DESCRIPTION: basta method and ancilliary functions.
 # COMMENTS:    
-# ============================================================================ #
+# =============================== BEGIN CODE ===================================
 basta <-
 		function(object, ... ) UseMethod("basta")
 
 # BaSTA Internal functions:
 # Create initial objects.
+# A
 .CreateAlgObj <- function(model, shape, studyStart, studyEnd, 
 		minAge, covarsStruct, recaptTrans, niter, burnin, thinning, updateJumps,
 		nsim) {
@@ -1768,7 +1770,7 @@ basta <-
 }
 
 .CalcQuants <- function(bastaOut, bastaResults, defTheta, fullParObj, algObj,
-		dataObj, CalcSurv, CalcMort, covObj, agesIni) {
+		dataObj, CalcSurv, CalcMort, covObj, agesIni, argList) {
 	if (class(agesIni)[1] == "ageUpd") {
 		nthin <- ceiling((algObj$niter - algObj$burnin + 1) / algObj$thinning)
 		bMat <- array(matrix(dataObj$bi, nthin, dataObj$n, byrow = TRUE), 
@@ -1884,6 +1886,19 @@ basta <-
 	bastaResults$agesQuant <- qxMat
 	bastaResults$mortQuant <- mxq
 	bastaResults$survQuant <- Sxq
+	if ("returnAges" %in% names(argList)) {
+	  if (class(agesIni)[1] == "ageUpd") {
+	    estAges <- xMat[,, 1]
+	    if (algObj$nsim > 1) {
+	      for (ii in 2:algObj$nsim) {
+	        estAges <- rbind(estAges, xMat[,, ii])
+	      }
+	    }
+	    bastaResults$estAges <- t(estAges)
+	  } else {
+	    bastaResults$estAges <- dataObj$di - dataObj$bi
+	  }
+	}
 	return(bastaResults)
 }
 
@@ -1925,7 +1940,12 @@ basta <-
 	      } else {
 	        covcat <- "propHaz"
 	      }
-	      x <- (dMat - bMat)[covObj[[covcat]][, cov] == 1,]
+	      if (ncol(bMat) > 1) {
+	        x <- (dMat - bMat)[covObj[[covcat]][, cov] == 1,]
+	      } else {
+	        x <- matrix((dMat - bMat)[covObj[[covcat]][, cov] == 1,], ncol = 1)
+	      }
+	      
 	    }
 	    ages <- 0:max(dMat - bMat)
 	    nx <- 1
@@ -1946,7 +1966,7 @@ basta <-
 	    } else {
 	      dx <- ages * 0
 	      names(dx) <- ages
-	      ddx <- as.matrix(table(xx))
+	      ddx <- as.matrix(table(x))
 	      dx[rownames(ddx)] <- ddx
 	      meanDx <- dx
 	      meanLx <- rev(cumsum(rev(meanDx)))
