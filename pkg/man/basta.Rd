@@ -113,6 +113,8 @@ The number of parameters in \code{thetaStart}, \code{thetaJumps}, \code{thetaPri
 
 As described above, the number of parameters for \code{gammaStart}, \code{gammaJumps}, \code{gammaPriorMean} and \code{gammaPriorSd} arguments (i.e. section b), namely the proportional hazards section, will be a function of the number of continuous covariates if argument \code{covarsStruct} is \dQuote{\code{fused}}, or to the total number of covariates when \code{covarsStruct} is \dQuote{\code{prop.haz}}.
 
+Another additional argument is \code{returnAges}, which outputs a value \code{estAges}, which is a matrix with all estimated ages after the burnin and thinning. This matrix also includes ages that were known, thus each row corresponds to the individual in the same row as the original dataset.
+
 }
 
 \value{  
