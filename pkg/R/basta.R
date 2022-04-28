@@ -3,7 +3,7 @@
 # AUTHOR:      Fernando Colchero
 # DATE:        01/May/2015
 # VERSION:     1.9.5
-# DESCRIPTION: basta method and ancilliary functions.
+# DESCRIPTION: basta method and ancillary functions.
 # COMMENTS:    
 # =============================== BEGIN CODE ===================================
 basta <-
@@ -356,7 +356,7 @@ basta <-
 		priorMean <- c(-3, 0.01)
 		priorSd <- c(1, 1)
 		nameTh <- c("b0", "b1")
-		lowTh <- c(-Inf, -Inf)
+		lowTh <- c(-Inf, 0)
 		jitter <- c(0.5, 0.2) 
 		if (algObj$shape == "bathtub") {
 			lowTh <- c(-Inf, 0)
@@ -1441,7 +1441,7 @@ basta <-
 	updObj <- list(len = 50)
 	updObj$targ <- ifelse("updateRate" %in% names(argList), 
 			argList$updateRate, 0.25)
-	niter <- updObj$len * 125
+	niter <- updObj$len * 200 # Increased niter before: 125
 	updObj$int <- seq(updObj$len, niter, updObj$len) 
 	updObj$updVec <- matrix(0, niter, nMp)
 	op <- options()
