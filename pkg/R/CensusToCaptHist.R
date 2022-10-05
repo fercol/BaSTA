@@ -1,7 +1,7 @@
 CensusToCaptHist <-
     function(ID, d, dformat = "%Y", timeInt = "Y") {
   # Check data
-  if(class(ID) != "character") {
+  if(!inherits(ID, "character")) {
     ID <- as.character(ID)
   } 
   if (is.numeric(d)) {
@@ -11,7 +11,7 @@ CensusToCaptHist <-
     } else {
       int <- d
     }
-  } else if (is.character(d) | class(d) == "Date") {
+  } else if (is.character(d) | inherits(d, "Date")) {
     if (is.character(d)) {
       d <- as.Date(d, format = dformat)
       if (length(which(is.na(d)))) {

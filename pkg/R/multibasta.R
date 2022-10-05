@@ -94,9 +94,9 @@ coef.multibasta <- function(object, showAll = FALSE, ...) {
   argList <- list(...)
   if (is.null(argList$digits)) digits <- 3 else digits <- argList$digits
   ans <- list()
-  if (class(showAll) == "logical") {
+  if (inherits(showAll,  "logical")) {
     if (showAll) nmod <- 1:length(object$runs) else nmod <- 1
-  } else if (class(showAll) == 'numeric') {
+  } else if (inherits(showAll, "numeric")) {
     if (length(showAll) == 1) {
       nmod <- 1:showAll
     } else {

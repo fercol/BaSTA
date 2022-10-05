@@ -50,7 +50,7 @@ function(x, data){
     }
     covs <- as.formula(paste("~", paste(c(xfac, xnum), 
                                collapse = "+"), "- 1"))
-  } else if (class(x) == "formula") {
+  } else if (inherits(x, "formula")) {
     xcov <- labels(terms(x))
     xcov <- unique(unlist(strsplit(xcov, split = ":")))
     if (!all(xcov %in% colnames(data))) {

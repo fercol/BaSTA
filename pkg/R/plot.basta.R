@@ -225,7 +225,7 @@ plot.basta <-
       }
       if ("noCI" %in% names(list(...))) {
         noCI <- list(...)$noCI
-        if (class(noCI) != "logical") {
+        if (!inherits(noCI, "logical")) {
           noCI <- FALSE
         }
       } else {

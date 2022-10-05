@@ -635,7 +635,7 @@ basta <-
 	}
 	
 	# Detection probability:
-	if (class(dataObj) == "ageUpd") {
+	if (inherits(dataObj, "ageUpd")) {
 		fullParObj$pi <- list()
 		study <- algObj$start:algObj$end
 		if (length(algObj$recap) == length(study)) {
@@ -1291,7 +1291,7 @@ basta <-
 	}
 	thinSeq <- seq(burnin, niter, thinning)
 	lenThin <- length(thinSeq)
-	if (class(dataObj) == "ageUpd") {
+	if (inherits(dataObj, "ageUpd")) {
 		if (length(dataObj$idNoB) > 0) {
 			outObj$birth <- matrix(NA, 0, length(dataObj$idNoB))
 		}
@@ -1351,7 +1351,7 @@ basta <-
 		postNow <- .SumPosts(postNow, 1:dataObj$n)
 		
 		# Sample Missing ages at death:
-		if (class(dataObj) == "ageUpd") {
+		if (inherits(dataObj, "ageUpd")) {
 			agesNew <- .SampleAges(agesNow, dataObj, algObj)
 			idNew <- which(agesNew$ages[, 'birth'] != agesNow$ages[, 'birth'] | 
 							agesNew$ages[, 'death'] != agesNow$ages[, 'death'])
@@ -1489,7 +1489,7 @@ basta <-
 		postNow <- .SumPosts(postNow, 1:dataObj$n)
 		
 		# Sample Missing ages at death:
-		if (class(dataObj) == "ageUpd") {
+		if (inherits(dataObj, "ageUpd")) {
 			agesNew <- .SampleAges(agesNow, dataObj, algObj)
 			idNew <- which(agesNew$ages[, 'birth'] != agesNow$ages[, 'birth'] | 
 							agesNew$ages[, 'death'] != agesNow$ages[, 'death'])
